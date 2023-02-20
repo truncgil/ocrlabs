@@ -8,6 +8,8 @@ use App\Models\ShortUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
 
 class ShortUrlController extends Controller
 {
@@ -26,20 +28,26 @@ class ShortUrlController extends Controller
      * 
      * 
      */
-    public function create(Request $request): Response
+    public function create(Request $request)
     {
-        if($request->type == 'tinyurl') {
-            $response = Http::post('http://api.tinyurl.com/create', [
-                'url' => $request->url,
-                "domain" => env('TINY_DOMAIN'),
-                "alias" => env('TINY_ALIAS'),
-                "tags" => "example,link",
-                "expires_at" => "2024-10-25 10:11:12"
+
+        $longUrl  = $request->url; 
+
+        if($request->provider == 'tinyurl') {
+
+            $response = Http::withToken(env('TINY_TOKEN'))->post('http://api.tinyurl.com/create', [
+                'url' => $longUrl
+            ]);
+        } elseif($request->provider == 'bitly') {
+
+            $response = Http::withToken(env('BITLY_TOKEN'))->post('https://api-ssl.bitly.com/v4/shorten', [
+                'domain' => env('BITLY_DOMAIN'),
+                'long_url' => $longUrl
             ]);
         }
         
-
-        return $response;
+        return  view('welcome', ['response', $response]);
+        //redirect()->back()->with('response', $response);;
     }
 
     /**
