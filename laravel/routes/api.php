@@ -2,7 +2,6 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ShortUrlController;
 
 
 /*
@@ -15,6 +14,4 @@ use App\Http\Controllers\ShortUrlController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-Route::post('shortlinks', ShortUrlController::class);
 
