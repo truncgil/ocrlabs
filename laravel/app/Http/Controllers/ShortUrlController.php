@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateShortUrlRequest;
 use App\Models\ShortUrl;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Response;
+use Illuminate\Http\Request;
 
 class ShortUrlController extends Controller
 {
@@ -19,11 +20,26 @@ class ShortUrlController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new shortten url.
+     * 
+     * @param Request $request
+     * 
+     * 
      */
-    public function create(): Response
+    public function create(Request $request): Response
     {
-        //
+        if($request->type == 'tinyurl') {
+            $response = Http::post('http://api.tinyurl.com/create', [
+                'url' => $request->url,
+                "domain" => env('TINY_DOMAIN'),
+                "alias" => env('TINY_ALIAS'),
+                "tags" => "example,link",
+                "expires_at" => "2024-10-25 10:11:12"
+            ]);
+        }
+        
+
+        return $response;
     }
 
     /**
