@@ -32,6 +32,8 @@ class ShortUrlController extends Controller
     {
 
         $longUrl  = $request->url; 
+        
+        $response = null;
 
         if($request->provider == 'tinyurl') {
 
@@ -44,10 +46,14 @@ class ShortUrlController extends Controller
                 'domain' => env('BITLY_DOMAIN'),
                 'long_url' => $longUrl
             ]);
+
+            
         }
-        
-        return  view('welcome', ['response', $response]);
-        //redirect()->back()->with('response', $response);;
+
+        $response = json_decode($response);
+        $response->provider = $request->provider;
+
+        return  response()->json($response, 200);
     }
 
     /**
