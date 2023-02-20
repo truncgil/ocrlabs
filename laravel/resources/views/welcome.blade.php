@@ -10,9 +10,7 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
         <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.css" rel="stylesheet" />
-
-
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.css" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com"></script>
 
     </head>
     <body class="antialiased">
@@ -39,16 +37,13 @@
                 </div>
 
                 <div class="mt-16">
-                    <div class="grid grid-cols-1 md:grid-cols-1 gap-12 lg:gap-12">
-                        
-                        @if (isset($response))
-                        <?php dump($response) ?>
-                        @endif
-                        <form method="POST" action="shortlinks">
+                    <div class="grid grid-cols-1 md:grid-cols-1 ">
+                        <form action="" onsubmit="return handleSubmit()">
+        
                             @csrf
                         <div class="mb-6">
                                 <label for="provider" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Select provider</label>
-                                <select id="provider" name="provider" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" requireds>
+                                <select id="provider" name="provider" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                                 <option value="">Select</option>
                                 <option value="bitly">Bit.ly</option>
                                 <option value="tinyurl">Tinyurl.com</option>
@@ -58,27 +53,70 @@
                             <label for="url" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Long URL</label>
                             <input type="url" name="url" id="url" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" required>
                         </div>
-                        
-                        <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Generate Short URL</button>
+
+                        <div class="mb-6">
+                            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" id="generate-url">Generate Short URL</button>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="shorturl" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Short URL</label>
+                            <input type="url" name="short_url" id="short_url" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" disabled required>
+                        </div>
+
+                       
+
                         </form>
-
-
                        
                     </div>
                 </div>
 
-                <div class="flex justify-center mt-16 px-0 sm:items-center sm:justify-between">
-                    
-
-                    <div class="ml-4 text-center text-sm text-gray-500 dark:text-gray-400 sm:text-right sm:ml-0">
-                        Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
-                    </div>
-                </div>
+                
             </div>
         </div>
     </body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.6.3/flowbite.min.js"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+    const handleSubmit = () => {
+            document.getElementById('generate-url').innerHTML = "Processing...";
+            fetch('{{url('shortlinks')}}', {
+                method: 'POST',
+                body: JSON.stringify({
+                    url: document.getElementById('url').value,
+                    provider: document.getElementById('provider').value,
+                    _token: "{{csrf_token()}}"
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                },
+            })
+            .then(response => response.json())
+            .then(response => {
+                console.log(response);
+
+                if(response.provider=="tinyurl") {
+                    console.log("tiny");
+                    console.log(response.data.tiny_url);
+                    document.getElementById('short_url').value = response.data.tiny_url;
+                } else if(response.provider=="bitly") {
+                    console.log("bitly");
+                    console.log(response.link);
+                    document.getElementById('short_url').value = response.link;
+                }
+                document.getElementById('generate-url').innerHTML = "Success!";
+            })
+            .catch(error => {
+
+            });
+            
+
+         
+            return false;
+        };
+
+        
+</script>
+
 
 </html>
